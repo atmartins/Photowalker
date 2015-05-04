@@ -1,0 +1,33 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# -------------------------------------------
+# set your project name here. bootstrap.sh will get it
+# -------------------------------------------
+$projectName = "lab_image_importer"
+
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  # Ubuntu 12.04 LTS 64 bits
+  config.vm.box = "hashicorp/precise64"
+
+  config.vm.provider "virtualbox" do |vb|
+     vb.customize ["modifyvm", :id, "--memory", "1024"]
+     vb.name = $projectName
+  end
+
+  # Default to the project directory.
+  config.vm.synced_folder "..", "/home/project/" + $projectName
+
+  # http. Note: Not using port 80 in node server
+  config.vm.network :forwarded_port, guest: 1480, host: 8080
+  
+  # https
+  #config.vm.network :forwarded_port, guest: 1443, host: 8443
+  
+  # WS (websockets)
+  #config.vm.network :forwarded_port, guest: 1337, host: 1338
+  
+  config.vm.provision :shell, :path => "bootstrap.sh", :args => $projectName
+end
