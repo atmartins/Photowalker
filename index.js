@@ -21,7 +21,7 @@ fs.readdir(dir_pictures, function(err, files){
 			var exif = JSON.parse(exifStr);
 			exif = exif[0]; //exiftool returns an array length 1 it seems
 			processImage(filepath, exif);
-		}	
+		}
 	}
 });
 

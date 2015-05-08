@@ -13,7 +13,7 @@ Note: Node dependencies are handled by an old-fashioned "npm install"
 Note: See /Vagrant/bootstrap.sh for more dependencies (possibly).
 1. Install exiftool
 	a. apt-get install libimage-exiftool-perl
-2. (recommended) Install usbmount
+2. (recommended) Install usbmount if headless
 	a. apt-get install usbmount
 
 
