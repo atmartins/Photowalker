@@ -1,9 +1,12 @@
 // spec/logger-spec.js
 var path = require('path'),
-    fs = require('fs'),
+    fs = require('fs.extra'),
     sh = require('shelljs'),
     logger = require(path.join('..','lib', 'logger.js')),
-    testDir = path.join(__dirname, 'test_logs'); //this is automatically removed after each test
+    testDir = path.join(__dirname, 'test_logs'); //this is automatically removed after each test if cleanup is true
+
+var cleanup = true;
+logger.quietMode(true);
 
 describe("logger module", function () {  
   
@@ -15,10 +18,10 @@ describe("logger module", function () {
   it("should create the error log file and its directory structure, and write an error message to the file.", function () {
     var fileErrLog = path.join(testDir, 'error.log');
     var mockMsg = 'Spec dummy error message';
-    logger.err(mockMsg, {quiet:true}); //log an error
+    logger.err(mockMsg);
     var contents = fs.readFileSync(fileErrLog,"utf8"); //read the error file
     expect(fs.existsSync(fileErrLog))
-      .toBe(true);    
+      .toBe(true);
     expect(contents)
       .toEqual(jasmine.any(String));
     expect(contents.length >= 1)
@@ -31,7 +34,7 @@ describe("logger module", function () {
   it("should create the message log file and its directory structure, and write a message to the file.", function () {
     var fileErrLog = path.join(testDir, 'message.log');
     var mockMsg = 'Spec dummy message';
-    logger.msg(mockMsg, {quiet:true}); //log an error
+    logger.msg(mockMsg); //log an error
     var contents = fs.readFileSync(fileErrLog,"utf8"); //read the error file
     expect(fs.existsSync(fileErrLog))
       .toBe(true);    
@@ -50,7 +53,10 @@ describe("logger module", function () {
 
   //TODO - change to "afterAll". Currently doesn't work (jasmine 2.0)
   afterEach(function() {
-    sh.exec('rm -rf ' + testDir, {silent:true}); //remove test log dir
+    if(cleanup){
+      fs.rmrf(testDir); //remove test log dir
+      //sh.exec('rm -rf ' + testDir, {silent:true}); //remove test log dir  
+    }
   });
 
 });
