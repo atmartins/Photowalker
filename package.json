@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "npx ./node_modules/.bin/babel-node src/index.js --src=./test_files --dest=./test_archive"
+    "start": "npx ./node_modules/.bin/babel-node src/index.js --src=./test_files --dest=./test_archive",
+    "createMongo": "docker run --name pwalk -p 27017:27017 -v /my/own/datadir:/data/db -d mongo:latest"
   },
   "author": "",
   "license": "ISC",
