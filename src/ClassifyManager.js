@@ -42,7 +42,7 @@ export default class ClassifyManager extends Manager {
         const targetDoc = await super.findOne({ size: sourceDoc.size });
 
         if (targetDoc && targetDoc.name) {
-            warn(`${sourceDoc.name} is filesize dupe for existing doc: ${targetDoc.name}`);
+            warn(`${sourceDoc.name} is filesize dupe for existing doc: ${targetDoc.fullPath}`);
             this.processDupe(targetDoc, sourceDoc);
         } else {
             log(`${sourceDoc.name} is size-unique`);
@@ -53,7 +53,7 @@ export default class ClassifyManager extends Manager {
     async processDupe(targetDoc, sourceDoc) {
         const hashesMatch = await this.checkHashMatch(targetDoc, sourceDoc);
         if (hashesMatch) {
-            warn(`${sourceDoc.name} is hash dupe for existing doc: ${targetDoc.name}`);
+            warn(`${sourceDoc.name} is hash dupe for existing doc: ${targetDoc.fullPath}`);
         } else {
             this.processUnique(sourceDoc, constants.uniqueAttribute.HASH);
         }

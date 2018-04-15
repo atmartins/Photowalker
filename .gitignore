@@ -3,3 +3,4 @@ node_modules
 .vagrant
 dist
 test_files
+test_archive
