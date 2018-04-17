@@ -49,6 +49,23 @@ export async function copyFile(source, target) {
     });
 }
 
+export async function moveFile(source, target) {
+    if (fileExists(target)) {
+        throw new Error(`Target ${target} exists`);
+    }
+
+    await ensureDirectoryExistence(target);
+    return new Promise((resolve, reject) => {
+        fs.rename(source, target, (err) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve();
+            }
+        });
+    });
+}
+
 export function getMimeType(filePath) {
     return mime.lookup(filePath);
 }

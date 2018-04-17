@@ -2,7 +2,7 @@ import path from 'path';
 import trash from 'trash';
 import { constants } from './constants';
 import { notice, log, warn, isValidUniqueAttribute } from './utils';
-import { copyFile, hashFile, getFileSize, renameUntilUnique, getFileName } from './fileUtils';
+import { moveFile, hashFile, getFileSize, renameUntilUnique, getFileName } from './fileUtils';
 import Manager from './Manager';
 
 export default class ClassifyManager extends Manager {
@@ -66,17 +66,15 @@ export default class ClassifyManager extends Manager {
         const updatedDoc = Object.assign({}, sourceDoc);
         updatedDoc.fullPath = this.calculateDestination(sourceDoc);
 
-        log(`Moving ${sourceDoc.name} to ${updatedDoc.fullPath}`);
+        // TODO fall back to copyFile if move can't proceed...
+        log(`Moving ${sourceDoc.fullPath} to ${updatedDoc.fullPath}`);
+        await moveFile(sourceDoc.fullPath, updatedDoc.fullPath);
 
-        await copyFile(sourceDoc.fullPath, updatedDoc.fullPath);
-
-        const copiedSize = getFileSize(updatedDoc.fullPath);
-        if (sourceDoc.size === copiedSize) {
+        const movedSize = getFileSize(updatedDoc.fullPath);
+        if (sourceDoc.size === movedSize) {
             updatedDoc.archivedName = getFileName(updatedDoc.fullPath);
             log(`Upserting ${sourceDoc.name} as ${updatedDoc.archivedName}`);
             await super.upsert({ [uniqueAttribute]: sourceDoc[uniqueAttribute] }, updatedDoc);
-            warn(`Moved & trashing ${sourceDoc.fullPath}`);
-            await trash(sourceDoc.fullPath);
         } else {
             throw new Error(`Failed to copy file, sizes should match. sourceDoc.size: ${sourceDoc.size} | copiedSize: ${copiedSize}`);
         }
