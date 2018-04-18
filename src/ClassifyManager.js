@@ -1,5 +1,4 @@
 import path from 'path';
-import trash from 'trash';
 import { constants } from './constants';
 import { notice, log, warn, isValidUniqueAttribute } from './utils';
 import { moveFile, hashFile, getFileSize, renameUntilUnique, getFileName } from './fileUtils';
@@ -51,11 +50,15 @@ export default class ClassifyManager extends Manager {
     }
 
     async processDupe(targetDoc, sourceDoc) {
-        const hashesMatch = await this.checkHashMatch(targetDoc, sourceDoc);
-        if (hashesMatch) {
-            warn(`${sourceDoc.name} is hash dupe for existing doc: ${targetDoc.fullPath}`);
+        if (targetDoc.size < constants.MAX_SIZE_TO_HASH_IN_BYTES) {
+            const hashesMatch = await this.checkHashMatch(targetDoc, sourceDoc);
+            if (hashesMatch) {
+                super.saveDupe(sourceDoc, targetDoc);
+            } else {
+                this.processUnique(sourceDoc, constants.uniqueAttribute.HASH);
+            }
         } else {
-            this.processUnique(sourceDoc, constants.uniqueAttribute.HASH);
+            super.saveDupe(sourceDoc, targetDoc);
         }
     }
 
@@ -101,8 +104,6 @@ export default class ClassifyManager extends Manager {
                 throw new Error('Expected targetDoc.fullPath to exist and be a string.');
             }
             existingMd5hash = await hashFile(targetDoc.fullPath);
-            const updatedDoc = Object.assign({}, targetDoc, { md5hash: existingMd5hash });
-            super.update({ _id: updatedDoc._id }, updatedDoc);
         }
 
         return (newMd5hash && existingMd5hash && newMd5hash === existingMd5hash);

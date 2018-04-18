@@ -1,7 +1,9 @@
 export const constants = {
     DB_NAME: 'pwalk',
     FILES_COLLECTION: 'files',
+    DUPES_COLLECTION: 'dupes',
     IGNORE_FILENAMES: ['.DS_Store'],
+    MAX_SIZE_TO_HASH_IN_BYTES: 2000,
     uniqueAttribute: {
         SIZE: 'size',
         HASH: 'hash',

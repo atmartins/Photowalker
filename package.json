@@ -5,24 +5,24 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "npx ./node_modules/.bin/babel-node src/index.js --src=./test_files --dest=./test_archive",
-    "createMongo": "docker run --name pwalk -p 27017:27017 -v /my/own/datadir:/data/db -d mongo:latest"
+    "start": "npx ./node_modules/.bin/babel-node src/index.js",
+    "start:example": "npm start -- --src=./test_archive --dest=./test_archive2",
+    "start:mongo": "docker run --name pwalk -p 27017:27017 -v /my/own/datadir:/data/db -d mongo:latest"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.0",
+    "babel-plugin-array-includes": "^2.0.3",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-env": "^1.6.1",
-    "babel-plugin-array-includes": "^2.0.3",
     "bluebird": "^3.5.1",
     "colors": "^1.2.1",
     "md5": "^2.2.1",
     "mime-types": "^2.1.18",
     "minimist": "^1.2.0",
     "mongodb": "^3.0.6",
-    "trash": "^4.3.0",
     "walk": "^2.3.13",
     "winston": "^3.0.0-rc4"
   },
