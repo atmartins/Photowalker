@@ -43,6 +43,6 @@ export async function walker({
 
     wk.on('end', () => {
         log('All done');
-        setTimeout(() => (dbClient.close()), 1000); // delay so db operations can finish up
+        setTimeout(() => (dbClient.close()), 100000); // delay so db operations can finish up
     });
 }
