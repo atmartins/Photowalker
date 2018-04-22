@@ -42,7 +42,7 @@ export async function walker({
     });
 
     wk.on('end', () => {
-        log('All done');
+        log('All walked...');
         setTimeout(() => (dbClient.close()), 100000); // delay so db operations can finish up
     });
 }

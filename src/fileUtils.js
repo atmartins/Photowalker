@@ -76,8 +76,14 @@ export function isImage(filePath) {
 }
 
 export async function hashFile(filePath) {
-    const newFile = await readFile(filePath);
-    const md5hash = md5(newFile);
+    let _file;
+    let md5hash;
+    try {
+        _file = await readFile(filePath);
+        md5hash = md5(_file);
+    } catch (e) {
+        throw new Error(`Unable to hashFile. Does ${filePath} exist?`);
+    }
     return md5hash;
 }
 

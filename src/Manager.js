@@ -10,6 +10,7 @@ export default class Manager {
         }
         this.dbConn = dbConn;
         this.dest = ensureTrailingSpace(path.resolve(dest));
+        this.destDupes = ensureTrailingSpace(path.resolve(`${dest}${constants.DUPE_DIR_SUFFIX}`));
     }
 
     collection(name) {

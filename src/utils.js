@@ -14,7 +14,7 @@ export const exit = () => (process.exit());
 
 /* eslint-disable no-console */
 export const err = (msg, e) => {
-    console.error(colors.red.inverse(`ERROR: ${msg}`), e);
+    console.error(colors.red.inverse(`ERROR: ${msg}`), '\n', e.stack ? colors.red(e.stack) : e);
     logger.error(msg, e);
 };
 

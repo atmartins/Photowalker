@@ -1,6 +1,6 @@
 import path from 'path';
 import { constants } from './constants';
-import { notice, log, warn, isValidUniqueAttribute } from './utils';
+import { notice, log, warn, err, isValidUniqueAttribute } from './utils';
 import { moveFile, hashFile, getFileSize, renameUntilUnique, getFileName } from './fileUtils';
 import Manager from './Manager';
 
@@ -32,6 +32,7 @@ export default class ClassifyManager extends Manager {
             fullPath: path.resolve(path.join(root, fileStats.name)),
             archivedName: null,
             md5hash: null,
+            _id: null,
         };
 
         if (!sourceDoc.size) {
@@ -42,24 +43,48 @@ export default class ClassifyManager extends Manager {
 
         if (targetDoc && targetDoc.name) {
             warn(`${sourceDoc.name} is filesize dupe for existing doc: ${targetDoc.fullPath}`);
-            this.processDupe(targetDoc, sourceDoc);
+            try {
+                await this.processDupe(sourceDoc, targetDoc);
+            } catch (e) {
+                err('while processing dupe', e);
+            }
         } else {
             log(`${sourceDoc.name} is size-unique`);
-            this.processUnique(sourceDoc, constants.uniqueAttribute.SIZE);
+            try {
+                await this.processUnique(sourceDoc, constants.uniqueAttribute.SIZE);
+            } catch (e) {
+                err('while processing unique', e);
+            }
         }
     }
 
-    async processDupe(targetDoc, sourceDoc) {
+    async processDupe(sourceDoc, targetDoc) {
         if (targetDoc.size < constants.MAX_SIZE_TO_HASH_IN_BYTES) {
-            const hashesMatch = await this.checkHashMatch(targetDoc, sourceDoc);
-            if (hashesMatch) {
-                super.saveDupe(sourceDoc, targetDoc);
-            } else {
-                this.processUnique(sourceDoc, constants.uniqueAttribute.HASH);
+            let hashesMatch;
+            try {
+                hashesMatch = await this.checkHashMatch(sourceDoc, targetDoc);
+                if (hashesMatch) {
+                    this.fileDupeAway(sourceDoc, targetDoc);
+                } else {
+                    this.processUnique(sourceDoc, constants.uniqueAttribute.HASH);
+                }
+            } catch (e) {
+                err('Problem checking hash match', e);
             }
         } else {
-            super.saveDupe(sourceDoc, targetDoc);
+            this.fileDupeAway(sourceDoc, targetDoc);
         }
+    }
+
+    // Move the duplicate doc to a sibling archive directory
+    // so it's out of the way and clean-up can occur.
+    async fileDupeAway(sourceDoc, targetDoc) {
+        const dupeDoc = Object.assign({}, sourceDoc);
+        const _targetDoc = Object.assign({}, targetDoc);
+
+        dupeDoc.fullPath = `${this.destDupes}${dupeDoc.name}`;
+        moveFile(sourceDoc.fullPath, dupeDoc.fullPath);
+        super.saveDupe(dupeDoc, _targetDoc);
     }
 
     async processUnique(sourceDoc, uniqueAttribute) {
@@ -93,19 +118,11 @@ export default class ClassifyManager extends Manager {
      * @param {string} fPath
      * @return {promise}
      */
-    async checkHashMatch(targetDoc, sourceDoc) {
+    async checkHashMatch(sourceDoc, targetDoc) {
         let existingMd5hash;
-        const newMd5hash = await hashFile(sourceDoc.fullPath);
-
-        if (targetDoc.md5hash) {
-            existingMd5hash = targetDoc.md5hash;
-        } else {
-            if (!(targetDoc.fullPath && typeof targetDoc.fullPath === 'string')) {
-                throw new Error('Expected targetDoc.fullPath to exist and be a string.');
-            }
-            existingMd5hash = await hashFile(targetDoc.fullPath);
-        }
-
+        let newMd5hash;
+        newMd5hash = await hashFile(sourceDoc.fullPath);
+        existingMd5hash = await hashFile(targetDoc.fullPath);
         return (newMd5hash && existingMd5hash && newMd5hash === existingMd5hash);
     }
 }
