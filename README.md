@@ -20,7 +20,7 @@ If a dupe is supsected, it's marked and saved to the database for review (later,
 
 
 src
-    size < max && existing docs ?
+    size < max && existing docs in db ?
         for each existing doc
             getStoredHash (existing has hash ? use it : make hash & save)
                 hashes match ?
