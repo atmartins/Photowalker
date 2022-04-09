@@ -21,7 +21,7 @@
     "colors": "^1.2.1",
     "md5": "^2.2.1",
     "mime-types": "^2.1.18",
-    "minimist": "^1.2.0",
+    "minimist": "^1.2.6",
     "mongodb": "^3.0.6",
     "walk": "^2.3.13",
     "winston": "^3.0.0-rc4"
